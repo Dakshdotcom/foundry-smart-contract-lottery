@@ -5,7 +5,9 @@ import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {Raffle} from "../../src/Raffle.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
-import {VRFCoordinatorV2_5Mock} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {
+    VRFCoordinatorV2_5Mock
+} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
 contract RaffleTest is Test {
     Raffle public raffle;
@@ -78,10 +80,7 @@ contract RaffleTest is Test {
         _;
     }
 
-    function testDontAllowPlayersToEnterWhenRaffleIsCalculating()
-        public
-        raffleEntered
-    {
+    function testDontAllowPlayersToEnterWhenRaffleIsCalculating() public raffleEntered {
         //arrange
         raffle.performUpkeep("");
 
@@ -96,7 +95,7 @@ contract RaffleTest is Test {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
         //act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         //assert
         assert(!upkeepNeeded);
     }
@@ -109,7 +108,7 @@ contract RaffleTest is Test {
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
         //act
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         //assert
         assert(!upkeepNeeded);
     }
@@ -136,12 +135,7 @@ contract RaffleTest is Test {
         numPlayers = 1;
         //act/assert
         vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle__UpkeepNotNeeded.selector,
-                currentBalance,
-                numPlayers,
-                rState
-            )
+            abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, rState)
         );
         raffle.performUpkeep("");
     }
@@ -150,13 +144,8 @@ contract RaffleTest is Test {
     //testCheckUpkeepReturnsTrueWhenParametersAreGood
 
     //////////////FUZZ TEST/////////////////////
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint256 randomRequestId
-    ) public raffleEntered {
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered {
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            randomRequestId,
-            address(raffle)
-        );
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
     }
 }
